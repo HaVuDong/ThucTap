@@ -1,0 +1,23 @@
+{
+  "name": "trello-api",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "DongDev",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HaVuDong/ThucTap.git"
+  },
+  "author": "DongDev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HaVuDong/ThucTap/issues"
+  },
+  "homepage": "https://github.com/HaVuDong/ThucTap#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
