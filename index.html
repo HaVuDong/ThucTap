@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sân bóng</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<div id="bookingModal" class="modal">
+    <div class="modal-content">
+        <h3>Chọn khung giờ</h3>
+
+        <label>Khung giờ:</label>
+        <select id="slotSelect" onchange="updateStartOptions()">
+            <option value="1">Sáng (6h-12h)</option>
+            <option value="2">Trưa (12h-18h)</option>
+            <option value="3">Tối (18h-23h)</option>
+        </select>
+
+        <label>Giờ bắt đầu:</label>
+        <select id="startHour"></select>
+
+        <label>Thời lượng:</label>
+        <div style="display:flex; align-items:center; gap:5px;">
+            <button type="button" onclick="changeDuration(-30)">-</button>
+            <input id="durationInput" type="number" value="60" min="30" step="30" style="width:80px;"
+                oninput="updateEndTime()">
+            <button type="button" onclick="changeDuration(30)">+</button>
+            <span>phút</span>
+        </div>
+
+        <p id="endTimeDisplay" style="margin-top:10px; font-weight:bold; color:blue;">Kết thúc: --h</p>
+
+
+        <div style="margin-top:15px;">
+            <button onclick="confirmBooking()">Xác nhận</button>
+            <button onclick="closeModal()">Hủy</button>
+        </div>
+    </div>
+</div>
+
+
+
+<body>
+    <header>
+        <h1>Quản lý sân bóng đá</h1>
+        <nav>
+            <a href="#">Trang chủ</a>
+            <a href="#">Đặt sân</a>
+            <a href="#">Quản lý</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Danh sách sân bóng</h2>
+        <div id="field-list"></div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
