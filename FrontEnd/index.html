@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - Quản lý sân bóng</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<!-- Modal đặt sân -->
+<div id="bookingModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Thông tin đặt sân</h2>
+        <form id="bookingForm">
+            <p><b>Sân:</b> <span id="modalField"></span></p>
+            <p><b>Ngày:</b> <span id="modalDate"></span></p>
+            <p><b>Giờ:</b> <span id="modalTime"></span></p>
+
+            <label for="name">Họ tên:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="phone">Số điện thoại:</label>
+            <input type="tel" id="phone" name="phone" required pattern="[0-9]{10,11}" placeholder="0912345678">
+
+            <label for="request">Yêu cầu:</label>
+            <textarea id="request" name="request" placeholder="Nhập yêu cầu (vd: trọng tài, nước...)"
+                rows="3"></textarea>
+
+            <p><b>Tạm tính:</b> <span id="totalPrice">0 VND</span></p>
+
+            <button type="submit" class="btn-submit">Xác nhận đặt sân</button>
+        </form>
+    </div>
+</div>
+
+
+
+
+<body>
+    <header class="topbar">
+        <h1>Sân Bóng NĐ</h1>
+        <nav>
+            <button class="btn-header-home">Trang chủ</button>
+            <button class="btn-header-book">Đặt sân</button>
+            <button class="btn-header-ures">Hồ sơ</button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h2>Chào mừng đến với sân bóng NĐ</h2>
+            <p>Đặt sân nhanh chóng, tiện lợi và chính xác</p>
+        </section>
+
+        <!-- Phần thông tin sân -->
+        <section>
+            <h2>Thông tin sân bóng</h2>
+            <div class="info-container">
+                <div class="info-text">
+                    <p><b>Tên sân:</b> Sân bóng NĐ </p>
+                    <p><b>Địa chỉ:</b> 123 Nguyễn Trãi, Quận 1, TP.HCM</p>
+                    <p><b>Số điện thoại:</b> <a href="tel:0901234567">0901 234 567</a></p>
+                    <p><b>Giờ mở cửa:</b> 6h00 - 23h00 hàng ngày</p>
+                    <p><b>Mô tả:</b> Hệ thống sân 5 người & 7 người, mặt cỏ nhân tạo hiện đại, có bãi giữ xe rộng rãi
+                    <p> Dịch vụ cho thuê sân, trọng tài và bán phụ kiện đi kèm</p>
+                    <p> Chuyên tổ chức các giải đá bóng lớn nhỏ sân 5 và sân 7</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phần giải đấu -->
+        <section>
+            <h2>Giải đấu</h2>
+            <div id="tournament-list" class="tournament-list"></div>
+        </section>
+
+        <!-- Phần lịch đặt sân -->
+        <section>
+            <h2>Lịch đặt sân (7 ngày tới)</h2>
+            <table id="full-schedule" class="schedule-table">
+                <thead>
+                    <tr id="schedule-header">
+                        <th>Khung giờ</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-body">
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

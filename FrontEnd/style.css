@@ -1,0 +1,336 @@
+/* ======================
+   GLOBAL STYLE
+====================== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f6f7f9;
+    color: #333;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* ======================
+   HEADER / TOPBAR
+====================== */
+.topbar {
+    background: #9fe89f;
+    color: rgb(243, 5, 5);
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 66px;
+    gap: 10px;
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 60px;
+}
+
+.topbar nav a {
+    color: white;
+    font-size: 16px;
+    margin-left: 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.topbar nav a:hover {
+    text-decoration: underline;
+}
+
+/* ======================
+   BUTTON HEADER
+====================== */
+.btn-header-home,
+.btn-header-book,
+.btn-header-ures {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    margin-left: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 40px;
+}
+
+.btn-header-home:hover,
+.btn-header-book:hover,
+.btn-header-ures:hover {
+    background: #218838;
+}
+
+/* ======================
+   FIELD CARD
+====================== */
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.card-body h3 {
+    margin-top: 0;
+    font-size: 18px;
+}
+
+.card-body p {
+    margin: 6px 0;
+}
+
+/* ======================
+   TOURNAMENT
+====================== */
+.tournament-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+.tournament-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tournament-card h3 {
+    margin: 0;
+    font-size: 26px;
+    color: #007bff;
+}
+
+.tournament-card p {
+    margin: 5px 0;
+    font-size: 26px;
+}
+
+/* ======================
+   SCHEDULE TABLE
+====================== */
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.schedule-table th,
+.schedule-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.schedule-table th {
+    background: #2c3e50;
+    color: white;
+}
+
+.schedule-table .booked {
+    background: #f8d7da;
+    color: #721c24;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 2px 0;
+    padding: 2px 4px;
+}
+
+.schedule-table .free {
+    background: #d4edda;
+    color: #155724;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 2px 0;
+    padding: 2px 4px;
+}
+
+.schedule-table button {
+    margin-top: 5px;
+    padding: 3px 8px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.schedule-table button:hover {
+    background: #0056b3;
+}
+
+/* ======================
+   FOOTER
+====================== */
+footer {
+    background: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-top: 30px;
+}
+
+/* ======================
+   INFO SECTION
+====================== */
+.info-container {
+    background-image: url("SAN7-1.jpg");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    color: white;
+}
+
+.info-text {
+    flex: 1;
+    min-width: 250px;
+    text-align: center;
+    font-size: 26px;
+}
+
+.info-images {
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-images img {
+    width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* ======================
+   MODAL BOOKING
+====================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+    background: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: left;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+input,
+textarea {
+    width: 100%;
+    margin: 8px 0;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.btn-submit {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background: #218838;
+}
+
+.request-options {
+    margin: 8px 0;
+    font-size: 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    /* 1 cột chữ, 1 cột checkbox */
+    row-gap: 8px;
+    align-items: center;
+}
+
+.request-options label {
+    display: contents;
+    /* để chữ và checkbox tách thành 2 ô riêng */
+    cursor: pointer;
+}
+
+.request-options input[type="checkbox"] {
+    justify-self: end;
+    /* đẩy checkbox sang phải */
+}
+
+
+.request-options input[type="text"] {
+    width: 100%;
+    padding: 6px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+textarea {
+    width: 100%;
+    margin: 8px 0;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    font-size: 14px;
+}
