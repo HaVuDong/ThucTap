@@ -1,3 +1,4 @@
+/* eslint-disable no-multi-spaces */
 /* eslint-disable indent */
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
@@ -13,7 +14,16 @@ const BOOKING_COLLECTION_SCHEMA = Joi.object({
   endTime: Joi.string().pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
 
   totalPrice: Joi.number().min(0).required(),
-  status: Joi.string().valid('pending', 'confirmed', 'cancelled', 'completed').default('pending'),
+  status: Joi.string().valid(
+    'pending',
+    'confirmed',
+    'cancelled_refunded',
+    'cancelled_no_refund',
+    'completed'
+  ).default('pending'),
+
+  depositAmount: Joi.number().min(0).default(0),   // số tiền cọc
+  isDeposited: Joi.boolean().default(false),       // đã cọc hay chưa
   notes: Joi.string().max(500).allow('', null),
 
   createdAt: Joi.date().timestamp().default(Date.now),

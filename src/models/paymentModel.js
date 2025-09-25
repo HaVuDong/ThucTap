@@ -5,11 +5,11 @@ import { GET_DB } from '~/config/mongodb'
 const PAYMENT_COLLECTION_NAME = 'payments'
 const PAYMENT_COLLECTION_SCHEMA = Joi.object({
   bookingId: Joi.string().required(),
-  customerId: Joi.string().required(),
-  amount: Joi.number().required().min(0),
-  method: Joi.string().valid('cash', 'credit', 'banking').required(),
-  status: Joi.string().valid('pending', 'completed', 'failed').default('pending'),
-  createdAt: Joi.date().timestamp().default(Date.now)
+  amount: Joi.number().min(0).required(),
+  method: Joi.string().valid('cash', 'bank', 'momo').required(),
+  status: Joi.string().valid('pending', 'paid', 'refunded').default('pending'),
+  createdAt: Joi.date().timestamp().default(Date.now),
+  updatedAt: Joi.date().timestamp().default(Date.now)
 })
 
 const validateBeforeCreate = async (data) => {
@@ -17,26 +17,38 @@ const validateBeforeCreate = async (data) => {
 }
 
 const createNew = async (data) => {
-  const validData = await validateBeforeCreate(data)
-  const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).insertOne({
-    ...validData,
-    bookingId: new ObjectId(validData.bookingId),
-    customerId: new ObjectId(validData.customerId)
-  })
+  const validated = await validateBeforeCreate(data)
+  const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).insertOne(validated)
   return result
+}
+
+const findOneById = async (id) => {
+  const queryId = ObjectId.isValid(id) ? new ObjectId(id) : null
+  if (!queryId) return null
+  return await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOne({ _id: queryId })
 }
 
 const getAll = async () => {
   return await GET_DB().collection(PAYMENT_COLLECTION_NAME).find().toArray()
 }
 
-const findOneById = async (id) => {
-  return await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
+const updateOne = async (id, data) => {
+  const queryId = ObjectId.isValid(id) ? new ObjectId(id) : null
+  if (!queryId) return null
+  const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOneAndUpdate(
+    { _id: queryId },
+    { $set: { ...data, updatedAt: Date.now() } },
+    { returnDocument: 'after' }
+  )
+  return result.value
+}
+
+const deleteOne = async (id) => {
+  const queryId = ObjectId.isValid(id) ? new ObjectId(id) : null
+  if (!queryId) return null
+  return await GET_DB().collection(PAYMENT_COLLECTION_NAME).deleteOne({ _id: queryId })
 }
 
 export const paymentModel = {
-  PAYMENT_COLLECTION_NAME,
-  createNew,
-  getAll,
-  findOneById
+  createNew, findOneById, getAll, updateOne, deleteOne
 }

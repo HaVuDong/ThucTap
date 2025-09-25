@@ -55,10 +55,26 @@ const remove = async (req, res, next) => {
   }
 }
 
+const cancel = async (req, res, next) => {
+  try {
+    const result = await bookingService.cancelBooking(req.params.id)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.refundAmount > 0
+        ? `Booking cancelled, refunded ${result.refundAmount}`
+        : 'Booking cancelled, no refund',
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const bookingController = {
   createNew,
   getAll,
   getById,
   update,
-  remove
+  remove,
+  cancel
 }

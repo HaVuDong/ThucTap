@@ -8,24 +8,62 @@ const calculateHours = (start, end) => {
 }
 
 const createNew = async (data) => {
-  // 1. Check sân tồn tại
   const field = await fieldModel.findOneById(data.fieldId)
   if (!field) throw new Error('Field not found')
 
-  // 2. Check trùng giờ
+  // Kiểm tra trùng giờ
   const overlap = await bookingModel.findOverlap(data.fieldId, data.bookingDate, data.startTime, data.endTime)
   if (overlap) throw new Error('Time slot already booked')
 
-  // 3. Tính tiền
+  // Tính số giờ
   const hours = calculateHours(data.startTime, data.endTime)
-  const totalPrice = field.pricePerHour * hours
+  if (hours < 1) throw new Error('Booking must be at least 1 hour')
+  if ((hours * 60) % 30 !== 0) throw new Error('Booking must be in 30-minute steps')
 
-  // 4. Tạo booking
+  // Tính tổng tiền
+  const totalPrice = field.pricePerHour * hours
+  const requiredDeposit = totalPrice * 0.3
+
+  // Nếu khách trả cọc >= 30% thì xác nhận ngay, nếu không thì chờ admin duyệt
+  const isDeposited = data.depositAmount && data.depositAmount >= requiredDeposit
+
   return await bookingModel.createNew({
     ...data,
     totalPrice,
-    status: 'pending'
+    depositAmount: data.depositAmount || 0,
+    isDeposited,
+    status: isDeposited ? 'confirmed' : 'pending'
   })
+}
+
+const cancelBooking = async (id) => {
+  const booking = await bookingModel.findOneById(id)
+  if (!booking) throw new Error('Booking not found')
+
+  // Tính thời gian còn lại (ms)
+  const bookingDateTime = new Date(`${booking.bookingDate}T${booking.startTime}:00`)
+  const now = new Date()
+  const diffHours = (bookingDateTime - now) / (1000 * 60 * 60)
+
+  let statusUpdate = 'cancelled_no_refund'
+  let refundAmount = 0
+
+  if (diffHours >= 24 && booking.isDeposited) {
+    statusUpdate = 'cancelled_refunded'
+    refundAmount = booking.depositAmount
+    // 🚀 Ở đây có thể gọi service thanh toán để hoàn tiền
+  }
+
+  const updated = await bookingModel.updateOne(id, {
+    status: statusUpdate,
+    refundAmount,
+    updatedAt: Date.now()
+  })
+
+  return {
+    ...updated,
+    refundAmount
+  }
 }
 
 const getById = async (id) => await bookingModel.findOneById(id)
@@ -38,5 +76,6 @@ export const bookingService = {
   getById,
   getAll,
   update,
-  remove
+  remove,
+  cancelBooking
 }

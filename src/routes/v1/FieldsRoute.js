@@ -17,5 +17,5 @@ Router.route('/:id')
     .get(fieldController.getById)
     .put(fieldController.update)
     .delete(fieldController.remove)
-
+Router.post('/check-availability', fieldController.checkAvailability)
 export const fieldsRoute = Router

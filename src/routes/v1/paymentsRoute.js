@@ -9,5 +9,7 @@ Router.route('/')
 
 Router.route('/:id')
   .get(paymentController.getById)
+  .put(paymentController.update)
+  .delete(paymentController.remove)
 
 export const paymentsRoute = Router

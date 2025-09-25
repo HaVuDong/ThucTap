@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable indent */
 import { StatusCodes } from 'http-status-codes'
 import { fieldService } from '~/services/fieldService'
@@ -73,10 +74,21 @@ const remove = async (req, res, next) => {
   }
 }
 
+const checkAvailability = async (req, res, next) => {
+  try {
+    const { fieldId, bookingDate, startTime, endTime } = req.body
+    const result = await fieldService.isAvailable(fieldId, bookingDate, startTime, endTime)
+    res.status(StatusCodes.OK).json({ success: true, ...result })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const fieldController = {
   createNew,
   getAll,
   getById,
   update,
-  remove
+  remove,
+  checkAvailability
 }

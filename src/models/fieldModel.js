@@ -9,17 +9,15 @@ import { GET_DB } from '~/config/mongodb'
 const FIELD_COLLECTION_NAME = 'fields'
 const FIELD_COLLECTION_SCHEMA = Joi.object({
     name: Joi.string().required().min(3).max(100).trim().strict(),
-    slug: Joi.string().allow('', null).default(null),
+    slug: Joi.string().trim().lowercase().default(null),
     type: Joi.string().valid('5 người', '7 người', '11 người').required(),
     pricePerHour: Joi.number().required().min(0),
-    status: Joi.string().valid('available', 'maintenance', 'booked').default('available'),
+    status: Joi.string().valid('available', 'maintenance', 'unavailable').default('available'),
     location: Joi.string().allow('', null).max(200),
     description: Joi.string().max(500).allow('', null),
-    images: Joi.array().items(Joi.string().uri()).default([]),
+    images: Joi.array().items(Joi.string()).default([]), // chấp nhận cả uri hoặc filename
     amenities: Joi.array().items(Joi.string()).default([]),
-    isActive: Joi.boolean().default(true),
-    createdAt: Joi.date().timestamp().default(Date.now),
-    updatedAt: Joi.date().timestamp().default(Date.now)
+    isActive: Joi.boolean().default(true)
 })
 
 const validateBeforeCreate = async (data) => {

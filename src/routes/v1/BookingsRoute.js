@@ -12,4 +12,6 @@ Router.route('/:id')
   .put(bookingController.update)
   .delete(bookingController.remove)
 
+Router.patch('/:id/cancel', bookingController.cancel)
+
 export const bookingsRoute = Router
