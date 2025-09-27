@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable indent */
 import { fieldModel } from '~/models/fieldModel'
-import { bookingModel } from '~/models/bookingModel'
+import { bookingModel } from '~/models/bookingModel.js'
 const createNew = async (reqBody) => {
   try {
     return await fieldModel.createNew(reqBody)
