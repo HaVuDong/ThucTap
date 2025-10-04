@@ -33,8 +33,13 @@ const findByEmail = async (email) => {
   return await GET_DB().collection(USER_COLLECTION_NAME).findOne({ email })
 }
 
+const findByUsername = async (username) => {
+  return await GET_DB().collection(USER_COLLECTION_NAME).findOne({ username })
+}
+
 export const userModel = {
   createNew,
   findOneById,
-  findByEmail
+  findByEmail,
+  findByUsername
 }
