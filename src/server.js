@@ -6,10 +6,10 @@ import path from "path"
 import exitHook from 'exit-hook'
 import cors from 'cors' // 👈 Thêm dòng này
 import bcrypt from 'bcrypt'            // 👈 thêm bcrypt để mã hoá mật khẩu
-import { CLOSE_DB, CONNECT_DB, GET_DB } from '~/config/mongodb' // 👈 thêm GET_DB
-import { env } from '~/config/environment'
-import { API_V1 } from '~/routes/v1'
-import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
+import { CLOSE_DB, CONNECT_DB, GET_DB } from '~/config/mongodb.js' // 👈 thêm GET_DB
+import { env } from '~/config/environment.js'
+import { API_V1 } from './routes/v1/index.js'
+import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware.js'
 
 // 👇 Thêm hàm tạo admin mặc định
 async function createDefaultAdmin() {
