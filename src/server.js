@@ -57,8 +57,10 @@ const START_SEVER = () => {
   // Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`3. hi ${env.AUTHOR}, Hello Dong Dev, I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
+  const PORT = process.env.PORT || env.APP_PORT || 8017
+
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on port ${PORT}`)
   })
 
   // cleanup trước khi dừng server
