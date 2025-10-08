@@ -49,7 +49,7 @@ const START_SEVER = () => {
   }))
 
   // Mount API v1
-  app.use('/api/v1', API_V1)
+  app.use('/v1', API_V1)
 
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
   app.use("/v1/uploads", express.static(path.join(__dirname, "../uploads")));
