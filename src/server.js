@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable quotes */
 /* eslint-disable semi */
 /* eslint-disable no-console */
@@ -12,29 +13,7 @@ import { API_V1 } from './routes/v1/index.js'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware.js'
 
 // 👇 Thêm hàm tạo admin mặc định
-async function createDefaultAdmin() {
-  try {
-    const db = GET_DB()
-    const users = db.collection('users')
 
-    const exist = await users.findOne({ username: 'admin' })
-    if (!exist) {
-      const hashedPassword = await bcrypt.hash('admin', 10)
-      await users.insertOne({
-        username: 'admin',
-        password: hashedPassword,
-        email: 'admin@example.com',
-        role: 'admin',
-        createdAt: Date.now()
-      })
-      console.log('✅ Đã tạo tài khoản admin mặc định (username/password: admin)')
-    } else {
-      console.log('ℹ️ Tài khoản admin đã tồn tại, bỏ qua.')
-    }
-  } catch (error) {
-    console.error('❌ Lỗi khi tạo tài khoản admin mặc định:', error)
-  }
-}
 
 const START_SEVER = () => {
   const app = express()
@@ -57,10 +36,10 @@ const START_SEVER = () => {
   // Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
-  const PORT = process.env.PORT || env.APP_PORT || 8017
+  const PORT = process.env.PORT || 8017
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Server running on port ${PORT}`)
+  app.listen(PORT, () => {
+    console.log(`✅ Server running and listening on PORT ${PORT}`)
   })
 
   // cleanup trước khi dừng server
