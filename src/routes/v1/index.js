@@ -1,7 +1,7 @@
 import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { fieldsRoute } from '~/routes/v1/FieldsRoute'
-import { bookingsRoute } from '~/routes/v1/BookingsRoute'
+import { bookingRoute } from '~/routes/v1/BookingsRoute'
 import { customersRoute } from '~/routes/v1/customersRoute'
 import { paymentsRoute } from '~/routes/v1/paymentsRoute'
 import { usersRoute } from '~/routes/v1/usersRoute'
@@ -15,7 +15,7 @@ Router.get('/status', (req, res) => {
 })
 
 Router.use('/fields', fieldsRoute)
-Router.use('/bookings', bookingsRoute)
+Router.use('/bookings', bookingRoute)
 Router.use('/customers', customersRoute)
 Router.use('/payments', paymentsRoute)
 Router.use('/users', usersRoute)

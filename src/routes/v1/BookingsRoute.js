@@ -1,17 +1,19 @@
-import express from 'express'
-import { bookingController } from '~/controllers/bookingController'
+/* eslint-disable quotes */
+import express from "express"
+import { bookingController } from "~/controllers/bookingController"
 
-const Router = express.Router()
+const router = express.Router()
 
-Router.route('/')
-  .get(bookingController.getAll)
-  .post(bookingController.createNew)
+// Danh sách route đặt sân
+router.get("/", bookingController.getAll)
+router.get("/:id", bookingController.getById)
+router.post("/", bookingController.createNew)
+router.put("/:id", bookingController.update)
 
-Router.route('/:id')
-  .get(bookingController.getById)
-  .put(bookingController.update)
-  .delete(bookingController.remove)
+// ✅ Route HỦY ĐẶT SÂN
+router.put("/:id/cancel", bookingController.cancelBooking)
+// Admin hủy (từ dashboard)
+router.put('/:id/admin-cancel', bookingController.adminCancelBooking)
+router.delete("/:id", bookingController.remove)
 
-Router.patch('/:id/cancel', bookingController.cancel)
-
-export const bookingsRoute = Router
+export const bookingRoute = router

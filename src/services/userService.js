@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { userModel } from '~/models/userModel'
@@ -16,12 +18,13 @@ const register = async (data) => {
     username: cleanUsername,
     email: cleanEmail,
     password: hashedPassword,
+    phone: cleanPhone,
     role: data.role || 'user',
     createdAt: Date.now(),
     updatedAt: Date.now()
   })
 
-  return { id: result.insertedId, email: cleanEmail, role: data.role || 'user' }
+  return { id: result.insertedId, email: cleanEmail, role: data.role, phone: cleanPhone || 'user' }
 }
 
 const login = async ({ identifier, password }) => {
@@ -42,15 +45,35 @@ const login = async ({ identifier, password }) => {
 
   // Tạo token
   const token = jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
+    { id: user._id, email: user.email, phone: user.phone, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: '1d' }
   )
 
   return {
     token,
-    user: { id: user._id, email: user.email, username: user.username, role: user.role }
+    user: { id: user._id, phone: user.phone, email: user.email, username: user.username, role: user.role }
   }
 }
 
-export const userService = { register, login }
+const getAll = async () => {
+  return await userModel.getAll()
+}
+
+const getById = async (id) => {
+  return await userModel.findById(id)
+}
+
+const create = async (data) => {
+  return await userModel.create(data)
+}
+
+const update = async (id, data) => {
+  return await userModel.update(id, data)
+}
+
+const remove = async (id) => {
+  return await userModel.delete(id)
+}
+
+export const userService = { register, login, getAll, getById, create, update, remove }

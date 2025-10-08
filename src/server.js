@@ -1,5 +1,8 @@
+/* eslint-disable quotes */
+/* eslint-disable semi */
 /* eslint-disable no-console */
 import express from 'express'
+import path from "path"
 import exitHook from 'exit-hook'
 import cors from 'cors' // 👈 Thêm dòng này
 import bcrypt from 'bcrypt'            // 👈 thêm bcrypt để mã hoá mật khẩu
@@ -48,6 +51,9 @@ const START_SEVER = () => {
   // Mount API v1
   app.use('/v1', API_V1)
 
+  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+  app.use("/v1/uploads", express.static(path.join(__dirname, "../uploads")));
+
   // Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
@@ -66,7 +72,6 @@ const START_SEVER = () => {
 CONNECT_DB()
   .then(async () => {
     console.log('Connected to MongoDB Cloud Atlas!')
-    await createDefaultAdmin() // 👈 Gọi hàm tạo admin tại đây
   })
   .then(() => START_SEVER())
   .catch(error => {

@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import { bookingModel } from '~/models/bookingModel.js'
 import { fieldModel } from '~/models/fieldModel'
 
@@ -12,19 +13,21 @@ const createNew = async (data) => {
   if (!field) throw new Error('Field not found')
 
   // Kiểm tra trùng giờ
-  const overlap = await bookingModel.findOverlap(data.fieldId, data.bookingDate, data.startTime, data.endTime)
+  const overlap = await bookingModel.findOverlap(
+    data.fieldId,
+    data.bookingDate,
+    data.startTime,
+    data.endTime
+  )
   if (overlap) throw new Error('Time slot already booked')
 
-  // Tính số giờ
+  // Tính số giờ và tiền
   const hours = calculateHours(data.startTime, data.endTime)
   if (hours < 1) throw new Error('Booking must be at least 1 hour')
   if ((hours * 60) % 30 !== 0) throw new Error('Booking must be in 30-minute steps')
 
-  // Tính tổng tiền
-  const totalPrice = field.pricePerHour * hours
+  const totalPrice = Number(field.pricePerHour) * hours
   const requiredDeposit = totalPrice * 0.3
-
-  // Nếu khách trả cọc >= 30% thì xác nhận ngay, nếu không thì chờ admin duyệt
   const isDeposited = data.depositAmount && data.depositAmount >= requiredDeposit
 
   return await bookingModel.createNew({
@@ -36,11 +39,28 @@ const createNew = async (data) => {
   })
 }
 
-const cancelBooking = async (id) => {
+// ✅ User hoặc Admin hủy sân
+const cancelBooking = async (id, cancelledBy = 'user') => {
+
   const booking = await bookingModel.findOneById(id)
   if (!booking) throw new Error('Booking not found')
 
-  // Tính thời gian còn lại (ms)
+  // Nếu booking đã hủy (bất kỳ kiểu nào) thì trả về luôn
+  if (booking.status?.startsWith('cancelled')) {
+    console.log("⚠️ Booking đã bị hủy sẵn:", booking.status)
+    return booking
+  }
+
+  // Nếu admin hủy → ghi rõ trạng thái
+  if (cancelledBy === 'admin') {
+    return await bookingModel.updateOne(id, {
+      status: 'cancelled_admin',
+      cancelledBy,
+      updatedAt: Date.now()
+    })
+  }
+
+  // Nếu user hủy
   const bookingDateTime = new Date(`${booking.bookingDate}T${booking.startTime}:00`)
   const now = new Date()
   const diffHours = (bookingDateTime - now) / (1000 * 60 * 60)
@@ -51,19 +71,14 @@ const cancelBooking = async (id) => {
   if (diffHours >= 24 && booking.isDeposited) {
     statusUpdate = 'cancelled_refunded'
     refundAmount = booking.depositAmount
-    // 🚀 Ở đây có thể gọi service thanh toán để hoàn tiền
   }
 
-  const updated = await bookingModel.updateOne(id, {
+  return await bookingModel.updateOne(id, {
     status: statusUpdate,
     refundAmount,
+    cancelledBy,
     updatedAt: Date.now()
   })
-
-  return {
-    ...updated,
-    refundAmount
-  }
 }
 
 const getById = async (id) => await bookingModel.findOneById(id)

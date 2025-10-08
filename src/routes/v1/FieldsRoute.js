@@ -1,21 +1,25 @@
+/* eslint-disable quotes */
 /* eslint-disable indent */
 /* eslint-disable no-unused-vars */
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
-import express from 'express'
-import { fieldValidation } from '~/validations/fieldValidation'
-import { fieldController } from '~/controllers/fieldController'
+import express from "express"
+import { fieldValidation } from "~/validations/fieldValidation"
+import { fieldController } from "~/controllers/fieldController"
+import { upload } from "~/middlewares/upload"
+
 const Router = express.Router()
 
-Router.route('/')
-    .get(fieldController.getAll)
-    .post(fieldValidation.createNew, fieldController.createNew)
-Router.route('/:id')
-    .get(fieldController.getById)
-    .put(fieldController.update)
-    .delete(fieldController.remove)
-Router.post('/check-availability', fieldController.checkAvailability)
+// Lấy tất cả hoặc thêm mới (có upload ảnh)
+Router.route("/")
+  .get(fieldController.getAll)
+  .post(upload.array("images", 10), fieldValidation.createNew, fieldController.createNew)
+
+// Các thao tác với từng sân
+Router.route("/:id")
+  .get(fieldController.getById)
+  .put(upload.array("images", 10), fieldController.update)
+  .delete(fieldController.remove)
+
+// Kiểm tra sân trống theo thời gian
+Router.post("/check-availability", fieldController.checkAvailability)
+
 export const fieldsRoute = Router

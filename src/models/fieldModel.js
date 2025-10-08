@@ -46,6 +46,9 @@ const updateOne = async (id, data) => {
         const queryId = ObjectId.isValid(id) ? new ObjectId(id) : null
         if (!queryId) return null
 
+        // ✅ Xóa _id khỏi data trước khi update
+        if (data._id) delete data._id
+
         const result = await GET_DB()
             .collection(FIELD_COLLECTION_NAME)
             .findOneAndUpdate(
@@ -54,14 +57,12 @@ const updateOne = async (id, data) => {
                 { returnDocument: 'after' }
             )
 
-        console.log('🔄 Kết quả update:', result)
-
-        // Chỉ return value, nếu không có sẽ là null
         return result
     } catch (error) {
         throw error
     }
 }
+
 
 
 const deleteOne = async (id) => {

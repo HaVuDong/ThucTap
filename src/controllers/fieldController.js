@@ -1,17 +1,28 @@
+/* eslint-disable quotes */
 /* eslint-disable no-console */
 /* eslint-disable indent */
 import { StatusCodes } from 'http-status-codes'
 import { fieldService } from '~/services/fieldService'
+import path from "path"
 
 const createNew = async (req, res, next) => {
   try {
-    const created = await fieldService.createNew(req.body)
+    // Lấy danh sách ảnh mới tải lên (nếu có)
+    const images =
+      req.files?.map((f) => `/uploads/fields/${path.basename(f.path)}`) || []
+
+    // Gộp dữ liệu vào body
+    const data = { ...req.body, images }
+
+    const created = await fieldService.createNew(data)
+
     res.status(StatusCodes.CREATED).json({ success: true, data: created })
-    console.log(created)
+    console.log("✅ Field created:", created)
   } catch (error) {
     next(error)
   }
 }
+
 
 const getAll = async (req, res, next) => {
   try {
@@ -40,24 +51,42 @@ const getById = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    const updatedField = await fieldService.update(req.params.id, req.body)
+    const id = req.params.id
+
+    // Lấy danh sách ảnh cũ từ form (nếu có)
+    const oldImages = Array.isArray(req.body["oldImages[]"])
+      ? req.body["oldImages[]"]
+      : req.body["oldImages[]"]
+        ? [req.body["oldImages[]"]]
+        : []
+
+    // Lấy ảnh mới tải lên (nếu có)
+    const newImages =
+      req.files?.map((f) => `/uploads/fields/${path.basename(f.path)}`) || []
+
+    // Gộp tất cả ảnh
+    const allImages = [...oldImages, ...newImages]
+
+    const payload = { ...req.body, images: allImages }
+
+    const updatedField = await fieldService.update(id, payload)
 
     if (!updatedField) {
-      // ❌ check null chậm lại ở cuối
-      return res.status(StatusCodes.NOT_FOUND).json({
-        success: false,
-        message: 'Field not found'
-      })
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ success: false, message: "Field not found" })
     }
 
     res.status(StatusCodes.OK).json({
       success: true,
+      message: "Field updated successfully",
       data: updatedField
     })
   } catch (error) {
     next(error)
   }
 }
+
 
 
 const remove = async (req, res, next) => {
