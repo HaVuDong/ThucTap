@@ -5,57 +5,81 @@
 import express from 'express'
 import path from "path"
 import exitHook from 'exit-hook'
-import cors from 'cors' // 👈 Thêm dòng này
-import bcrypt from 'bcrypt'            // 👈 thêm bcrypt để mã hoá mật khẩu
-import { CLOSE_DB, CONNECT_DB, GET_DB } from '~/config/mongodb.js' // 👈 thêm GET_DB
+import cors from 'cors' // 👈 Quan trọng!
+import bcrypt from 'bcrypt'
+import { CLOSE_DB, CONNECT_DB, GET_DB } from '~/config/mongodb.js'
 import { env } from '~/config/environment.js'
 import { API_V1 } from './routes/v1/index.js'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware.js'
 
-// 👇 Thêm hàm tạo admin mặc định
-
-
-const START_SEVER = () => {
+// =====================
+// 🚀 KHỞI TẠO SERVER
+// =====================
+const START_SERVER = () => {
   const app = express()
 
+  // Cho phép đọc JSON body
   app.use(express.json())
 
-  // 👇 Thêm middleware CORS
-  app.use(cors({
-    origin: 'http://localhost:3000', // domain frontend
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-  }))
+  // =====================
+  // ⚙️ CẤU HÌNH CORS (cho phép frontend gọi API)
+  // =====================
+  app.use(
+    cors({
+      origin: [
+        "https://frontend-two-sable-gob38m9y77.vercel.app",
+        "http://localhost:3000"// local dev
+      ],
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      credentials: true
+    })
+  )
 
-  // Mount API v1
+  // 👉 Nếu bạn muốn cho phép tất cả domain (test nhanh):
+  // app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }))
+
+  // =====================
+  // 📂 CẤU HÌNH STATIC FILES
+  // =====================
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+
+  // =====================
+  // 🧩 MOUNT API V1
+  // =====================
   app.use('/v1', API_V1)
 
-  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-  app.use("/v1/uploads", express.static(path.join(__dirname, "../uploads")));
-
-  // Middleware xử lý lỗi tập trung
+  // =====================
+  // 🧱 XỬ LÝ LỖI TẬP TRUNG
+  // =====================
   app.use(errorHandlingMiddleware)
 
+  // =====================
+  // 🚀 KHỞI ĐỘNG SERVER
+  // =====================
   const PORT = process.env.PORT || 8017
-
   app.listen(PORT, () => {
     console.log(`✅ Server running and listening on PORT ${PORT}`)
   })
 
-  // cleanup trước khi dừng server
+  // =====================
+  // 🧹 CLEANUP KHI DỪNG SERVER
+  // =====================
   exitHook(() => {
-    console.log('4. Server is shutting down')
+    console.log('🧹 Server is shutting down...')
     CLOSE_DB()
-    console.log('5. Disconnecting from MongoDB Cloud Atlas')
+    console.log('❎ Disconnected from MongoDB Atlas.')
   })
 }
 
+// =====================
+// ⚡ KẾT NỐI DATABASE VÀ CHẠY SERVER
+// =====================
 CONNECT_DB()
   .then(async () => {
-    console.log('Connected to MongoDB Cloud Atlas!')
+    console.log('✅ Connected to MongoDB Cloud Atlas!')
   })
-  .then(() => START_SEVER())
+  .then(() => START_SERVER())
   .catch(error => {
-    console.error(error)
+    console.error('❌ Database connection failed:', error)
     process.exit(0)
   })
