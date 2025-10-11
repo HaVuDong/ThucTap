@@ -1,26 +1,21 @@
 /* eslint-disable no-console */
 /* eslint-disable quotes */
-/* eslint-disable no-multi-spaces */
-/* eslint-disable indent */
 import Joi from "joi"
 import { ObjectId } from "mongodb"
 import { GET_DB } from "~/config/mongodb"
 
 export const BOOKING_COLLECTION_NAME = "bookings"
 
-// 🧩 Schema chi tiết cho Booking
 export const BOOKING_COLLECTION_SCHEMA = Joi.object({
-  fieldId: Joi.string().required(),
+  fieldId: Joi.alternatives().try(Joi.string(), Joi.object()).required(),
+  userId: Joi.alternatives().try(Joi.string(), Joi.allow(null, "")),
 
-  // Cho phép null hoặc không có customerId (khách vãng lai)
-  customerId: Joi.alternatives().try(Joi.string(), Joi.allow(null, "")),
-
-  customerName: Joi.string().allow("", null),
-  customerPhone: Joi.string()
+  userName: Joi.string().allow("", null),
+  userPhone: Joi.string()
     .pattern(/^(0|\+84)\d{9,10}$/)
     .message("Số điện thoại không hợp lệ")
     .allow("", null),
-  customerEmail: Joi.string().email().allow("", null),
+  userEmail: Joi.string().email().allow("", null),
 
   bookingDate: Joi.date().required(),
   startTime: Joi.string()
@@ -30,13 +25,13 @@ export const BOOKING_COLLECTION_SCHEMA = Joi.object({
     .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
     .required(),
 
-  totalPrice: Joi.number().min(0).required(),
+  totalPrice: Joi.number().min(0).optional(),
   depositAmount: Joi.number().min(0).default(0),
   isDeposited: Joi.boolean().default(false),
+  vietqrUrl: Joi.string().allow("", null),
 
   notes: Joi.string().max(500).allow("", null),
 
-  // Các trạng thái hợp lệ
   status: Joi.string()
     .valid(
       "pending",
@@ -49,8 +44,6 @@ export const BOOKING_COLLECTION_SCHEMA = Joi.object({
     .default("pending"),
 
   refundAmount: Joi.number().min(0).default(0),
-
-  // Ai là người hủy (nếu có)
   cancelledBy: Joi.string().valid("user", "admin").allow(null, ""),
 
   createdAt: Joi.date().timestamp().default(Date.now),
@@ -64,30 +57,33 @@ const validateBeforeCreate = async (data) => {
 
 // ✅ Tạo mới booking
 const createNew = async (data) => {
-  // 🧹 Ép hoặc lọc dữ liệu sai kiểu trước khi validate
+
+  // ✅ ép userId thành ObjectId nếu hợp lệ
+  if (data.userId && ObjectId.isValid(data.userId)) {
+    data.userId = new ObjectId(data.userId)
+  }
+  // Chuẩn hóa dữ liệu
   if (data.isDeposited === "true" || data.isDeposited === "false") {
     data.isDeposited = data.isDeposited === "true"
   }
   if (typeof data.isDeposited !== "boolean") {
-    delete data.isDeposited // để Joi tự default(false)
+    delete data.isDeposited
   }
-
-  // Tương tự: đảm bảo totalPrice là số
   if (typeof data.totalPrice === "string") {
     data.totalPrice = Number(data.totalPrice)
   }
 
-  // Đảm bảo bookingDate là Date object hợp lệ
+  if (data.fieldId && ObjectId.isValid(data.fieldId)) {
+    data.fieldId = new ObjectId(data.fieldId)
+  }
+
   if (data.bookingDate && !(data.bookingDate instanceof Date)) {
     data.bookingDate = new Date(data.bookingDate)
   }
 
-  const validData = await validateBeforeCreate(data)
-  const result = await GET_DB()
-    .collection(BOOKING_COLLECTION_NAME)
-    .insertOne(validData)
-
-  return result
+  const validData = await BOOKING_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
+  const result = await GET_DB().collection(BOOKING_COLLECTION_NAME).insertOne(validData)
+  return { _id: result.insertedId, ...validData }
 }
 
 // ✅ Tìm booking theo ID
@@ -103,22 +99,17 @@ const getAll = async () => {
   return await GET_DB()
     .collection(BOOKING_COLLECTION_NAME)
     .find()
-    .sort({ createdAt: -1 }) // Mới nhất lên đầu
+    .sort({ createdAt: -1 })
     .toArray()
 }
 
 // ✅ Cập nhật booking
-// ✅ Cập nhật booking — an toàn cho mọi version MongoDB
 const updateOne = async (id, data) => {
   try {
-    if (!ObjectId.isValid(id)) {
-      console.log("❌ ID không hợp lệ:", id)
-      return null
-    }
+    if (!ObjectId.isValid(id)) return null
 
     const collection = GET_DB().collection(BOOKING_COLLECTION_NAME)
 
-    // Ép kiểu trước khi update (tránh lỗi boolean/string)
     if (data.isDeposited === "true" || data.isDeposited === "false") {
       data.isDeposited = data.isDeposited === "true"
     }
@@ -131,13 +122,11 @@ const updateOne = async (id, data) => {
       updatedAt: Date.now()
     }
 
-    // ⚙️ Mongo version nào cũng hỗ trợ cách này
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
       { $set: updateData }
     )
 
-    // ✅ Nếu modifiedCount > 0 → cập nhật thành công
     if (result.modifiedCount > 0) {
       const updatedDoc = await collection.findOne({ _id: new ObjectId(id) })
       console.log("✅ Booking update thành công:", updatedDoc._id)
@@ -152,8 +141,6 @@ const updateOne = async (id, data) => {
   }
 }
 
-
-
 // ✅ Xóa booking
 const deleteOne = async (id) => {
   if (!ObjectId.isValid(id)) return null
@@ -164,6 +151,8 @@ const deleteOne = async (id) => {
 
 // ✅ Kiểm tra trùng giờ
 const findOverlap = async (fieldId, bookingDate, startTime, endTime) => {
+  if (ObjectId.isValid(fieldId)) fieldId = new ObjectId(fieldId)
+
   return await GET_DB()
     .collection(BOOKING_COLLECTION_NAME)
     .findOne({
@@ -184,3 +173,5 @@ export const bookingModel = {
   deleteOne,
   findOverlap
 }
+
+export { ObjectId }

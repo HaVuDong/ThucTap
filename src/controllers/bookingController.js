@@ -1,8 +1,10 @@
 /* eslint-disable no-console */
+/* eslint-disable no-undef */
 /* eslint-disable quotes */
 import { StatusCodes } from "http-status-codes"
-import { bookingService } from "~/services/bookingService"
+import { bookingService } from "~/services/bookingService.js"
 
+// 🧩 Tạo booking mới
 const createNew = async (req, res, next) => {
   try {
     const newBooking = await bookingService.createNew(req.body)
@@ -13,6 +15,7 @@ const createNew = async (req, res, next) => {
   }
 }
 
+// 🧩 Lấy tất cả bookings (admin)
 const getAll = async (req, res, next) => {
   try {
     const bookings = await bookingService.getAll()
@@ -22,6 +25,7 @@ const getAll = async (req, res, next) => {
   }
 }
 
+// 🧩 Lấy booking theo ID
 const getById = async (req, res, next) => {
   try {
     const booking = await bookingService.getById(req.params.id)
@@ -37,27 +41,23 @@ const getById = async (req, res, next) => {
   }
 }
 
+// 🧩 Cập nhật booking
 const update = async (req, res, next) => {
   try {
-    const { id } = req.params // ✅ Lấy id hợp lệ từ URL
-    console.log("🧩 PUT /bookings/:id nhận ID:", id)
-
+    const { id } = req.params
     const updated = await bookingService.update(id, req.body)
-
     if (!updated) {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: "Booking not found"
       })
     }
-
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Booking updated successfully",
       data: updated
     })
   } catch (error) {
-    console.error("❌ update booking error:", error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message || "Error updating booking"
@@ -65,7 +65,7 @@ const update = async (req, res, next) => {
   }
 }
 
-
+// 🧩 Xóa booking
 const remove = async (req, res, next) => {
   try {
     const deleted = await bookingService.remove(req.params.id)
@@ -81,17 +81,10 @@ const remove = async (req, res, next) => {
   }
 }
 
+// 🧩 Người dùng hủy booking
 const cancelBooking = async (req, res, next) => {
   try {
-    const bookingId = req.params.id
-    const result = await bookingService.cancelBooking(bookingId, "user")
-    if (!result) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        success: false,
-        message: "Booking not found"
-      })
-    }
-
+    const result = await bookingService.cancelBooking(req.params.id, "user")
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Booking cancelled successfully",
@@ -102,16 +95,10 @@ const cancelBooking = async (req, res, next) => {
   }
 }
 
+// 🧩 Admin hủy booking
 const adminCancelBooking = async (req, res, next) => {
   try {
-    const id = req.params.id
-    const result = await bookingService.cancelBooking(id, "admin")
-    if (!result) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        success: false,
-        message: "Booking not found"
-      })
-    }
+    const result = await bookingService.cancelBooking(req.params.id, "admin")
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Booking cancelled by admin",
@@ -122,6 +109,27 @@ const adminCancelBooking = async (req, res, next) => {
   }
 }
 
+// 🧩 Lấy danh sách booking theo userId (cho trang “Lịch đã đặt”)
+const getByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params
+    if (!userId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Missing userId parameter"
+      })
+    }
+
+    const bookings = await bookingService.getByUserId(userId)
+    return res.status(StatusCodes.OK).json({ success: true, data: bookings })
+  } catch (error) {
+    console.error("❌ getByUserId error:", error)
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "Error fetching user bookings" })
+  }
+}
+
 export const bookingController = {
   createNew,
   getAll,
@@ -129,5 +137,6 @@ export const bookingController = {
   update,
   remove,
   cancelBooking,
-  adminCancelBooking
+  adminCancelBooking,
+  getByUserId
 }
